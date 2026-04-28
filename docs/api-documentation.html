@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twouple API — Backend Documentation v1.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f0f13;
+      --bg-secondary: #16161d;
+      --bg-tertiary: #1c1c26;
+      --bg-card: #1a1a24;
+      --border: #2a2a3a;
+      --text-primary: #e8e8f0;
+      --text-secondary: #9898b0;
+      --text-muted: #6868 80;
+      --accent-primary: #7c5cfc;
+      --accent-secondary: #a78bfa;
+      --accent-glow: rgba(124, 92, 252, 0.15);
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --get: #22c55e;
+      --post: #3b82f6;
+      --put: #f59e0b;
+      --patch: #a855f7;
+      --delete: #ef4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ========== PRINT STYLES ========== */
+    @media print {
+      body { background: #fff; color: #111; font-size: 10pt; }
+      .sidebar, .scroll-top { display: none !important; }
+      .main-content { margin-left: 0 !important; padding: 20px !important; }
+      .cover-page { page-break-after: always; background: #fff !important; }
+      .cover-page h1 { color: #7c5cfc !important; }
+      .cover-page .cover-subtitle { color: #333 !important; }
+      .section { page-break-inside: avoid; }
+      .endpoint-card { border: 1px solid #ddd; background: #fafafa; page-break-inside: avoid; }
+      .code-block { background: #f5f5f5 !important; color: #333 !important; border: 1px solid #ddd; }
+      .method-badge { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .toc { page-break-after: always; }
+      h2 { color: #7c5cfc !important; }
+    }
+
+    /* ========== COVER PAGE ========== */
+    .cover-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #0f0f13 0%, #1a1028 50%, #0f0f13 100%);
+      position: relative;
+      overflow: hidden;
+      padding: 60px 20px;
+    }
+
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+    }
+
+    .cover-logo {
+      font-size: 80px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .cover-page h1 {
+      font-size: 52px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #7c5cfc, #a78bfa, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1.5px;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .cover-subtitle {
+      font-size: 20px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-bottom: 40px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 40px;
+      color: var(--text-muted);
+      font-size: 13px;
+      position: relative;
+    }
+
+    .cover-meta span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: var(--accent-glow);
+      border: 1px solid rgba(124,92,252,0.3);
+      color: var(--accent-secondary);
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 100;
+      padding: 24px 0;
+    }
+
+    .sidebar-brand {
+      padding: 0 24px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-brand h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-secondary);
+    }
+
+    .sidebar-brand p {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+
+    .sidebar-section {
+      padding: 8px 24px;
+    }
+
+    .sidebar-section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      background: var(--accent-glow);
+      color: var(--text-primary);
+    }
+
+    .sidebar a .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      margin-left: 280px;
+      padding: 40px 60px;
+      max-width: 1100px;
+    }
+
+    /* ========== SECTION HEADINGS ========== */
+    .section {
+      margin-bottom: 60px;
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent-secondary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      border-top: none;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 30px;
+      max-width: 700px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      margin-top: 30px;
+    }
+
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      margin-top: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      font-size: 14.5px;
+    }
+
+    /* ========== ENDPOINT CARDS ========== */
+    .endpoint-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-tertiary);
+    }
+
+    .method-badge {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .method-GET { background: rgba(34,197,94,0.15); color: var(--get); border: 1px solid rgba(34,197,94,0.3); }
+    .method-POST { background: rgba(59,130,246,0.15); color: var(--post); border: 1px solid rgba(59,130,246,0.3); }
+    .method-PUT { background: rgba(245,158,11,0.15); color: var(--put); border: 1px solid rgba(245,158,11,0.3); }
+    .method-PATCH { background: rgba(168,85,247,0.15); color: var(--patch); border: 1px solid rgba(168,85,247,0.3); }
+    .method-DELETE { background: rgba(239,68,68,0.15); color: var(--delete); border: 1px solid rgba(239,68,68,0.3); }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .endpoint-auth {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--warning);
+      background: rgba(245,158,11,0.1);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(245,158,11,0.2);
+    }
+
+    .endpoint-auth.public {
+      color: var(--success);
+      background: rgba(34,197,94,0.1);
+      border-color: rgba(34,197,94,0.2);
+    }
+
+    .endpoint-body {
+      padding: 24px;
+    }
+
+    .endpoint-desc {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* ========== CODE BLOCKS ========== */
+    .code-block {
+      background: #12121a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .code-block pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #c8c8e0;
+    }
+
+    .code-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .json-key { color: #7c5cfc; }
+    .json-string { color: #22c55e; }
+    .json-number { color: #f59e0b; }
+    .json-bool { color: #ef4444; }
+    .json-null { color: #ef4444; font-style: italic; }
+
+    /* ========== TABLES ========== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 13.5px;
+    }
+
+    thead th {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 16px;
+      border-bottom: 2px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    tbody td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .type-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(124,92,252,0.12);
+      color: var(--accent-secondary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .required-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--danger);
+      text-transform: uppercase;
+    }
+
+    .optional-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* ========== STATUS CODES ========== */
+    .status-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-2xx { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+    .status-4xx { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .status-5xx { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+
+    /* ========== INFO BOXES ========== */
+    .info-box {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 13.5px;
+      border-left: 4px solid;
+    }
+
+    .info-box.note {
+      background: rgba(59,130,246,0.08);
+      border-color: var(--info);
+      color: var(--text-secondary);
+    }
+
+    .info-box.warning {
+      background: rgba(245,158,11,0.08);
+      border-color: var(--warning);
+      color: var(--text-secondary);
+    }
+
+    .info-box.success {
+      background: rgba(34,197,94,0.08);
+      border-color: var(--success);
+      color: var(--text-secondary);
+    }
+
+    .info-box.danger {
+      background: rgba(239,68,68,0.08);
+      border-color: var(--danger);
+      color: var(--text-secondary);
+    }
+
+    .info-box strong {
+      color: var(--text-primary);
+    }
+
+    /* ========== ARCHITECTURE DIAGRAM ========== */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .arch-card .arch-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .arch-card h5 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .arch-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* ========== MODEL SCHEMA ========== */
+    .model-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .model-header {
+      padding: 16px 24px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .model-header h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .model-table-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent-secondary);
+      background: rgba(124,92,252,0.1);
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    .model-body {
+      padding: 0;
+    }
+
+    .model-body table {
+      margin-bottom: 0;
+    }
+
+    /* ========== FLOW DIAGRAM ========== */
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      position: relative;
+    }
+
+    .flow-step::before {
+      content: '';
+      position: absolute;
+      left: 17px;
+      top: 44px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .flow-step:last-child::before { display: none; }
+
+    .flow-num {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-glow);
+      border: 2px solid var(--accent-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent-secondary);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .flow-content h5 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .flow-content p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* ========== RELATIONSHIP LINES ========== */
+    .rel-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .rel-line code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(124,92,252,0.1);
+      color: var(--accent-secondary);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .rel-arrow {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    /* ========== TOC ========== */
+    .toc {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px 36px;
+      margin-bottom: 50px;
+    }
+
+    .toc h2 {
+      border: none;
+      padding-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .toc-list {
+      list-style: none;
+      counter-reset: toc-counter;
+    }
+
+    .toc-list li {
+      counter-increment: toc-counter;
+    }
+
+    .toc-list li a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      padding: 8px 0;
+      font-size: 15px;
+      font-weight: 500;
+      transition: color 0.15s;
+      border-bottom: 1px solid rgba(42,42,58,0.5);
+    }
+
+    .toc-list li a:hover {
+      color: var(--accent-secondary);
+    }
+
+    .toc-list li a::before {
+      content: counter(toc-counter, decimal-leading-zero);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      width: 28px;
+      flex-shrink: 0;
+    }
+
+    /* ========== SCROLL TOP ========== */
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 44px;
+      height: 44px;
+      background: var(--accent-primary);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(124,92,252,0.4);
+    }
+
+    .scroll-top.visible { opacity: 1; }
+
+    /* ========== ENV TABLE ========== */
+    .env-table td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent-secondary);
+      white-space: nowrap;
+    }
+
+    /* ========== DIVIDER ========== */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 40px 0;
+    }
+
+    /* Inline code */
+    code.inline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(124,92,252,0.1);
+      color: var(--accent-secondary);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 14px;
+    }
+
+    ul li {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    /* folder tree */
+    .folder-tree {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--text-secondary);
+    }
+
+    .folder-tree .dir { color: var(--accent-secondary); font-weight: 600; }
+    .folder-tree .file { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- ==================== COVER PAGE ==================== -->
+<div class="cover-page">
+  <div class="cover-logo">💜</div>
+  <h1>Twouple API</h1>
+  <div class="cover-subtitle">Backend Documentation</div>
+  <div class="cover-badge">Version 1.0.0 — RESTful API</div>
+  <div class="cover-meta">
+    <span>📅 April 2026</span>
+    <span>⚙️ Node.js + Express v5</span>
+    <span>🗄️ MySQL + Sequelize</span>
+    <span>🔐 JWT Authentication</span>
+  </div>
+</div>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <h3>💜 Twouple API</h3>
+    <p>v1.0.0 Documentation</p>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="#overview">📖 Introduction</a>
+    <a href="#architecture">🏗️ Architecture</a>
+    <a href="#folder-structure">📁 Folder Structure</a>
+    <a href="#environment">🔧 Environment Setup</a>
+    <a href="#getting-started">🚀 Getting Started</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Authentication</div>
+    <a href="#auth-flow">🔑 Auth Flow</a>
+    <a href="#auth-middleware">🛡️ Auth Middleware</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">API Endpoints</div>
+    <a href="#api-health"><span class="nav-dot" style="background:var(--get)"></span> Health Check</a>
+    <a href="#api-auth"><span class="nav-dot" style="background:var(--post)"></span> Auth APIs</a>
+    <a href="#api-users"><span class="nav-dot" style="background:var(--accent-primary)"></span> User APIs</a>
+    <a href="#api-relationships"><span class="nav-dot" style="background:var(--warning)"></span> Relationship APIs</a>
+    <a href="#api-chat"><span class="nav-dot" style="background:var(--info)"></span> Chat APIs</a>
+    <a href="#api-insights"><span class="nav-dot" style="background:var(--patch)"></span> Insight APIs</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Database</div>
+    <a href="#db-models">📊 Data Models</a>
+    <a href="#db-relationships">🔗 Relationships</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Services & Utils</div>
+    <a href="#services">⚡ Services</a>
+    <a href="#middlewares">🧩 Middlewares</a>
+    <a href="#utilities">🔧 Utilities</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Extras</div>
+    <a href="#error-handling">🚨 Error Handling</a>
+    <a href="#rate-limiting">⏱️ Rate Limiting</a>
+  </div>
+</nav>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<div class="main-content">
+
+  <!-- ===== TABLE OF CONTENTS ===== -->
+  <div class="toc" id="toc">
+    <h2>📑 Table of Contents</h2>
+    <ol class="toc-list">
+      <li><a href="#overview">Introduction & Project Overview</a></li>
+      <li><a href="#architecture">System Architecture</a></li>
+      <li><a href="#folder-structure">Folder Structure</a></li>
+      <li><a href="#environment">Environment Configuration</a></li>
+      <li><a href="#getting-started">Getting Started — Running the Server</a></li>
+      <li><a href="#auth-flow">Authentication Flow (OTP → JWT)</a></li>
+      <li><a href="#auth-middleware">Authentication Middleware (protect)</a></li>
+      <li><a href="#api-health">Health Check API</a></li>
+      <li><a href="#api-auth">Auth API Endpoints</a></li>
+      <li><a href="#api-users">User / Profile API Endpoints</a></li>
+      <li><a href="#api-relationships">Relationship API Endpoints</a></li>
+      <li><a href="#api-chat">Chat API Endpoints</a></li>
+      <li><a href="#api-insights">Insights & Tasks API Endpoints</a></li>
+      <li><a href="#db-models">Database Models & Schemas</a></li>
+      <li><a href="#db-relationships">Database Relationships (ERD)</a></li>
+      <li><a href="#services">Business Logic Services</a></li>
+      <li><a href="#middlewares">Middlewares Reference</a></li>
+      <li><a href="#utilities">Utility Modules</a></li>
+      <li><a href="#error-handling">Global Error Handling</a></li>
+      <li><a href="#rate-limiting">Rate Limiting Strategy</a></li>
+    </ol>
+  </div>
+
+  <!-- ===== 1. OVERVIEW ===== -->
+  <div class="section" id="overview">
+    <h2>01 · Introduction</h2>
+    <p class="section-desc">
+      <strong>Twouple</strong> is a couples' relationship platform powered by astrology-based daily insights,
+      in-app messaging, and AI-driven guidance. This document serves as the complete technical reference for
+      the Twouple Backend API — covering every endpoint, data model, service layer, middleware, and utility
+      in the system.
+    </p>
+
+    <div class="info-box note">
+      <strong>Base URL:</strong> All API endpoints are prefixed with <code class="inline">/api/v1</code><br>
+      <strong>Example:</strong> <code class="inline">https://api.twouple.app/api/v1/auth/request-otp</code>
+    </div>
+
+    <h3>Tech Stack</h3>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">🟢</div>
+        <h5>Node.js</h5>
+        <p>Runtime Environment</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">⚡</div>
+        <h5>Express v5</h5>
+        <p>HTTP Framework</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🗄️</div>
+        <h5>MySQL</h5>
+        <p>Relational Database</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🔷</div>
+        <h5>Sequelize v6</h5>
+        <p>ORM Layer</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🔐</div>
+        <h5>JWT</h5>
+        <p>Authentication</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">✅</div>
+        <h5>Joi</h5>
+        <p>Request Validation</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🛡️</div>
+        <h5>Helmet</h5>
+        <p>HTTP Security</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">📊</div>
+        <h5>Morgan</h5>
+        <p>HTTP Logging</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2. ARCHITECTURE ===== -->
+  <div class="section" id="architecture">
+    <h2>02 · System Architecture</h2>
+    <p class="section-desc">
+      The backend follows a layered MVC-S (Model-View-Controller-Service) architecture, ensuring
+      separation of concerns, testability, and future scalability.
+    </p>
+
+    <div class="code-block">
+      <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                      CLIENT (Mobile App)                        │
+└───────────────┬─────────────────────────────────────────────────┘
+                │  HTTPS + Bearer JWT
+                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    EXPRESS APPLICATION (app.js)                  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │
+│  │  Helmet  │ │   CORS   │ │  Morgan  │ │  JSON Body Parse │   │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘   │
+└───────────────┬─────────────────────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    ROUTE LAYER (routes/*.js)                     │
+│  /auth  ·  /users  ·  /relationships  ·  /chat  ·  /insights   │
+└───────────────┬─────────────────────────────────────────────────┘
+                │  Auth Middleware (protect) — JWT verification
+                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                CONTROLLER LAYER (controllers/*.js)               │
+│  Validation (Joi) → Delegates to Services → Formats Response    │
+└───────────────┬─────────────────────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 SERVICE LAYER (services/*.js)                    │
+│  authService · userService · syncService · chatService          │
+│  astrologyService · aiService (future)                          │
+└───────────────┬─────────────────────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  MODEL LAYER (models/*.js)                       │
+│  User · Relationship · ChatMessage · DailyInsight · UserTask    │
+│                  ┌─────────┐                                    │
+│                  │ Sequelize│ ← ORM                             │
+│                  └────┬────┘                                    │
+│                       ▼                                         │
+│                ┌────────────┐                                   │
+│                │   MySQL DB  │                                  │
+│                └────────────┘                                   │
+└─────────────────────────────────────────────────────────────────┘</pre>
+    </div>
+  </div>
+
+  <!-- ===== 3. FOLDER STRUCTURE ===== -->
+  <div class="section" id="folder-structure">
+    <h2>03 · Folder Structure</h2>
+    <div class="code-block">
+      <pre class="folder-tree"><span class="dir">backend/</span>
+├── <span class="file">.env</span>                         <span style="color:#6868B0">← Environment variables (secret)</span>
+├── <span class="file">.env.example</span>                 <span style="color:#6868B0">← Environment template</span>
+├── <span class="file">.eslintrc.json</span>               <span style="color:#6868B0">← ESLint configuration</span>
+├── <span class="file">.prettierrc</span>                  <span style="color:#6868B0">← Prettier formatting rules</span>
+├── <span class="file">docker-compose.yml</span>           <span style="color:#6868B0">← Docker orchestration</span>
+├── <span class="file">package.json</span>                 <span style="color:#6868B0">← Dependencies & scripts</span>
+│
+└── <span class="dir">src/</span>
+    ├── <span class="file">app.js</span>                   <span style="color:#6868B0">← Express app setup & global middlewares</span>
+    ├── <span class="file">server.js</span>                <span style="color:#6868B0">← Server entry point, DB sync, listen</span>
+    │
+    ├── <span class="dir">config/</span>
+    │   └── <span class="file">db.js</span>                <span style="color:#6868B0">← Sequelize MySQL connection pool</span>
+    │
+    ├── <span class="dir">controllers/</span>
+    │   ├── <span class="file">authController.js</span>    <span style="color:#6868B0">← OTP request / verify handlers</span>
+    │   ├── <span class="file">chatController.js</span>    <span style="color:#6868B0">← Send message / get history</span>
+    │   ├── <span class="file">insightController.js</span> <span style="color:#6868B0">← Daily dashboard / toggle tasks</span>
+    │   ├── <span class="file">relationshipController.js</span> <span style="color:#6868B0">← Invite / accept / status</span>
+    │   └── <span class="file">userController.js</span>    <span style="color:#6868B0">← Profile CRUD with Joi validation</span>
+    │
+    ├── <span class="dir">middlewares/</span>
+    │   ├── <span class="file">authMiddleware.js</span>    <span style="color:#6868B0">← JWT Bearer token verification</span>
+    │   ├── <span class="file">errorMiddleware.js</span>   <span style="color:#6868B0">← 404 handler + global error handler</span>
+    │   ├── <span class="file">rateLimiter.js</span>       <span style="color:#6868B0">← Standard + strict rate limits</span>
+    │   └── <span class="file">validation.js</span>        <span style="color:#6868B0">← Reusable Joi validation middleware</span>
+    │
+    ├── <span class="dir">models/</span>
+    │   ├── <span class="file">index.js</span>             <span style="color:#6868B0">← Central model hub + associations</span>
+    │   ├── <span class="file">User.js</span>              <span style="color:#6868B0">← User schema</span>
+    │   ├── <span class="file">Relationship.js</span>      <span style="color:#6868B0">← Partner pairing schema</span>
+    │   ├── <span class="file">ChatMessage.js</span>       <span style="color:#6868B0">← In-app messages schema</span>
+    │   ├── <span class="file">DailyInsight.js</span>      <span style="color:#6868B0">← Astrology insights schema</span>
+    │   └── <span class="file">UserTask.js</span>          <span style="color:#6868B0">← Do/Avoid daily tasks schema</span>
+    │
+    ├── <span class="dir">routes/</span>
+    │   ├── <span class="file">index.js</span>             <span style="color:#6868B0">← Central router hub</span>
+    │   ├── <span class="file">authRoutes.js</span>        <span style="color:#6868B0">← /auth/*</span>
+    │   ├── <span class="file">chatRoutes.js</span>        <span style="color:#6868B0">← /chat/*</span>
+    │   ├── <span class="file">insightRoutes.js</span>     <span style="color:#6868B0">← /insights/*</span>
+    │   ├── <span class="file">relationshipRoutes.js</span><span style="color:#6868B0">← /relationships/*</span>
+    │   └── <span class="file">userRoutes.js</span>        <span style="color:#6868B0">← /users/*</span>
+    │
+    ├── <span class="dir">services/</span>
+    │   ├── <span class="file">aiService.js</span>         <span style="color:#6868B0">← AI integration (future)</span>
+    │   ├── <span class="file">astrologyService.js</span>  <span style="color:#6868B0">← Daily insight generation</span>
+    │   ├── <span class="file">authService.js</span>       <span style="color:#6868B0">← OTP + JWT signing logic</span>
+    │   ├── <span class="file">chatService.js</span>       <span style="color:#6868B0">← Message send/fetch logic</span>
+    │   ├── <span class="file">syncService.js</span>       <span style="color:#6868B0">← Relationship invite/accept logic</span>
+    │   └── <span class="file">userService.js</span>       <span style="color:#6868B0">← User CRUD operations</span>
+    │
+    └── <span class="dir">utils/</span>
+        ├── <span class="file">locationFormatter.js</span> <span style="color:#6868B0">← Geocoding via Nominatim</span>
+        ├── <span class="file">logger.js</span>            <span style="color:#6868B0">← Dev/Prod aware logging</span>
+        └── <span class="file">whatsappParser.js</span>    <span style="color:#6868B0">← WhatsApp chat export cleaner</span></pre>
+    </div>
+  </div>
+
+  <!-- ===== 4. ENVIRONMENT ===== -->
+  <div class="section" id="environment">
+    <h2>04 · Environment Configuration</h2>
+    <p class="section-desc">
+      Create a <code class="inline">.env</code> file in the backend root with the following variables.
+    </p>
+
+    <table class="env-table">
+      <thead>
+        <tr><th>Variable</th><th>Description</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PORT</td><td>Server port number</td><td><code class="inline">3000</code></td></tr>
+        <tr><td>NODE_ENV</td><td>Environment mode</td><td><code class="inline">development</code></td></tr>
+        <tr><td>DB_HOST</td><td>MySQL host address</td><td><code class="inline">localhost</code></td></tr>
+        <tr><td>DB_NAME</td><td>Database name</td><td><code class="inline">twouple_db</code></td></tr>
+        <tr><td>DB_USER</td><td>Database username</td><td><code class="inline">root</code></td></tr>
+        <tr><td>DB_PASSWORD</td><td>Database password</td><td><code class="inline">your_password</code></td></tr>
+        <tr><td>JWT_SECRET</td><td>JWT signing secret key (min 32 chars)</td><td><code class="inline">super_secret_jwt_key_here</code></td></tr>
+        <tr><td>USE_REAL_OTP</td><td>Toggle real SMS OTP vs dev dummy</td><td><code class="inline">false</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box warning">
+      <strong>⚠️ Security Warning:</strong> Never commit the <code class="inline">.env</code> file to version control.
+      The <code class="inline">.gitignore</code> file is already configured to exclude it.
+    </div>
+  </div>
+
+  <!-- ===== 5. GETTING STARTED ===== -->
+  <div class="section" id="getting-started">
+    <h2>05 · Getting Started</h2>
+    <p class="section-desc">Follow these steps to run the Twouple backend locally.</p>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <h5>Install dependencies</h5>
+          <p><code class="inline">npm install</code></p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <h5>Configure environment</h5>
+          <p>Copy <code class="inline">.env.example</code> → <code class="inline">.env</code> and fill in your MySQL credentials and JWT secret.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <h5>Start MySQL</h5>
+          <p>Ensure MySQL server is running on the host/port specified in <code class="inline">.env</code></p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content">
+          <h5>Run development server</h5>
+          <p><code class="inline">npm run dev</code> — Uses Nodemon for hot-reloading. Tables auto-sync via <code class="inline">sequelize.sync({ alter: true })</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-content">
+          <h5>Verify</h5>
+          <p>Hit <code class="inline">GET /api/v1/health</code> → should return <code class="inline">{ status: 'success' }</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 6. AUTH FLOW ===== -->
+  <div class="section" id="auth-flow">
+    <h2>06 · Authentication Flow</h2>
+    <p class="section-desc">
+      Twouple uses a phone-based OTP login flow. No passwords needed. The flow provisions new users
+      automatically on first login (findOrCreate pattern).
+    </p>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <h5>User enters phone number</h5>
+          <p>Client sends <code class="inline">POST /api/v1/auth/request-otp</code> with the phone number.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <h5>Server dispatches OTP</h5>
+          <p>In production, an SMS is sent via Twilio/AWS SNS. In dev mode, the OTP is hardcoded as <code class="inline">1234</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <h5>User submits OTP</h5>
+          <p>Client sends <code class="inline">POST /api/v1/auth/verify-otp</code> with phone + OTP code.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content">
+          <h5>Server verifies & provisions</h5>
+          <p>OTP is validated → User is found or created → JWT token signed with 30-day expiry.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-content">
+          <h5>Client stores JWT</h5>
+          <p>The returned JWT is stored locally. All subsequent requests include it via <code class="inline">Authorization: Bearer &lt;token&gt;</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box success">
+      <strong>✅ Dev Tip:</strong> In development mode (<code class="inline">USE_REAL_OTP=false</code>), use OTP code <code class="inline">1234</code> for all phone numbers.
+    </div>
+  </div>
+
+  <!-- ===== 7. AUTH MIDDLEWARE ===== -->
+  <div class="section" id="auth-middleware">
+    <h2>07 · Auth Middleware</h2>
+    <p class="section-desc">
+      The <code class="inline">protect</code> middleware guards all private endpoints. It extracts and verifies the JWT
+      from the <code class="inline">Authorization</code> header, confirms the user still exists in the DB,
+      and attaches <code class="inline">req.user</code> for downstream handlers.
+    </p>
+
+    <h4>How to use</h4>
+    <p>All routes in <code class="inline">/users</code>, <code class="inline">/relationships</code>, <code class="inline">/chat</code>, and <code class="inline">/insights</code> are wrapped with <code class="inline">router.use(protect)</code> — every request must include a valid JWT.</p>
+
+    <h4>Request Header Format</h4>
+    <div class="code-block">
+      <pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</pre>
+    </div>
+
+    <h4>Error Responses</h4>
+    <table>
+      <thead><tr><th>Scenario</th><th>Status</th><th>Message</th></tr></thead>
+      <tbody>
+        <tr><td>No token provided</td><td><span class="status-chip status-4xx">401</span></td><td>Access denied. No token provided.</td></tr>
+        <tr><td>Token expired</td><td><span class="status-chip status-4xx">401</span></td><td>Session expired. Please log in again.</td></tr>
+        <tr><td>Invalid/tampered token</td><td><span class="status-chip status-4xx">401</span></td><td>Invalid token.</td></tr>
+        <tr><td>User deleted after token issued</td><td><span class="status-chip status-4xx">401</span></td><td>The user belonging to this token no longer exists.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 8. HEALTH CHECK ===== -->
+  <div class="section" id="api-health">
+    <h2>08 · Health Check API</h2>
+
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-GET">GET</span>
+        <span class="endpoint-path">/api/v1/health</span>
+        <span class="endpoint-auth public">🌐 PUBLIC</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          A lightweight health-check endpoint used by load balancers, uptime monitors, and container
+          orchestrators (AWS ELB, Docker, etc.) to verify the API is alive and responding.
+        </p>
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"status"</span>: <span class="json-string">"success"</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Twouple API is up and running!"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 9. AUTH APIs ===== -->
+  <div class="section" id="api-auth">
+    <h2>09 · Auth API Endpoints</h2>
+    <p class="section-desc">Phone-based OTP authentication. No passwords, no emails — just a phone number and a verification code.</p>
+
+    <!-- Request OTP -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-POST">POST</span>
+        <span class="endpoint-path">/api/v1/auth/request-otp</span>
+        <span class="endpoint-auth public">🌐 PUBLIC</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Sends an OTP code to the provided phone number. In development mode, the OTP is always <code class="inline">1234</code>.
+          In production, this would integrate with Twilio or AWS SNS.
+        </p>
+
+        <h4>Request Body</h4>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">phone_number</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="required-badge">Required</span></td>
+              <td>User's phone number (min 10 characters)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">POST /api/v1/auth/request-otp</div>
+          <pre>{
+  <span class="json-key">"phone_number"</span>: <span class="json-string">"+919876543210"</span>
+}</pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"OTP dispatched successfully"</span>
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — Invalid phone number</span>
+          <span class="status-chip status-5xx">500 — Internal server error</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verify OTP -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-POST">POST</span>
+        <span class="endpoint-path">/api/v1/auth/verify-otp</span>
+        <span class="endpoint-auth public">🌐 PUBLIC</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Verifies the OTP, creates the user if they don't exist (find-or-create pattern), and returns a
+          signed JWT token with a 30-day expiry. Also returns whether this is a new user (for onboarding flow).
+        </p>
+
+        <h4>Request Body</h4>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">phone_number</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="required-badge">Required</span></td>
+              <td>The phone number that received the OTP</td>
+            </tr>
+            <tr>
+              <td><code class="inline">otp</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="required-badge">Required</span></td>
+              <td>The OTP code (use <code class="inline">1234</code> in dev)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">POST /api/v1/auth/verify-otp</div>
+          <pre>{
+  <span class="json-key">"phone_number"</span>: <span class="json-string">"+919876543210"</span>,
+  <span class="json-key">"otp"</span>: <span class="json-string">"1234"</span>
+}</pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Authentication successful"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"token"</span>: <span class="json-string">"eyJhbGciOiJIUzI1NiIs..."</span>,
+    <span class="json-key">"isNewUser"</span>: <span class="json-bool">true</span>,
+    <span class="json-key">"user"</span>: {
+      <span class="json-key">"id"</span>: <span class="json-string">"a1b2c3d4-e5f6-7890-abcd-ef1234567890"</span>,
+      <span class="json-key">"phone_number"</span>: <span class="json-string">"+919876543210"</span>,
+      <span class="json-key">"is_premium"</span>: <span class="json-bool">false</span>
+    }
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — Missing phone or OTP</span>
+          <span class="status-chip status-4xx">401 — Invalid OTP</span>
+          <span class="status-chip status-5xx">500 — Internal server error</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 10. USER APIs ===== -->
+  <div class="section" id="api-users">
+    <h2>10 · User / Profile API Endpoints</h2>
+    <p class="section-desc">
+      All user endpoints require authentication. The user ID is extracted from the JWT token automatically — users can only access their own data.
+    </p>
+
+    <div class="info-box note">
+      <strong>🔒 Auth Required:</strong> All endpoints below require <code class="inline">Authorization: Bearer &lt;token&gt;</code>
+    </div>
+
+    <!-- Get Profile -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-GET">GET</span>
+        <span class="endpoint-path">/api/v1/users/me</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">Fetch the authenticated user's profile. Excludes internal timestamps from response.</p>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-string">"a1b2c3d4-e5f6-7890-abcd-ef1234567890"</span>,
+    <span class="json-key">"phone_number"</span>: <span class="json-string">"+919876543210"</span>,
+    <span class="json-key">"full_name"</span>: <span class="json-string">"Arjun Mehta"</span>,
+    <span class="json-key">"dob"</span>: <span class="json-string">"1998-03-15"</span>,
+    <span class="json-key">"time_of_birth"</span>: <span class="json-string">"14:30"</span>,
+    <span class="json-key">"place_of_birth"</span>: <span class="json-string">"Mumbai, Maharashtra"</span>,
+    <span class="json-key">"zodiac_sign"</span>: <span class="json-string">"Pisces"</span>,
+    <span class="json-key">"is_premium"</span>: <span class="json-bool">false</span>
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">401 — Unauthorized</span>
+          <span class="status-chip status-4xx">404 — User not found</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Profile -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-PUT">PUT</span>
+        <span class="endpoint-path">/api/v1/users/me</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Update the authenticated user's profile. Primarily used for the onboarding flow after first login.
+          All fields are optional — send only what you want to update. Validated with Joi.
+        </p>
+
+        <h4>Request Body</h4>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Validation</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">full_name</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="optional-badge">Optional</span></td>
+              <td>2–100 characters</td>
+            </tr>
+            <tr>
+              <td><code class="inline">dob</code></td>
+              <td><span class="type-badge">date</span></td>
+              <td><span class="optional-badge">Optional</span></td>
+              <td>ISO format: <code class="inline">YYYY-MM-DD</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">time_of_birth</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="optional-badge">Optional</span></td>
+              <td>Format: <code class="inline">HH:MM</code> (24hr)</td>
+            </tr>
+            <tr>
+              <td><code class="inline">place_of_birth</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="optional-badge">Optional</span></td>
+              <td>Max 255 characters</td>
+            </tr>
+            <tr>
+              <td><code class="inline">zodiac_sign</code></td>
+              <td><span class="type-badge">enum</span></td>
+              <td><span class="optional-badge">Optional</span></td>
+              <td>One of: Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra, Scorpio, Sagittarius, Capricorn, Aquarius, Pisces</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">PUT /api/v1/users/me</div>
+          <pre>{
+  <span class="json-key">"full_name"</span>: <span class="json-string">"Arjun Mehta"</span>,
+  <span class="json-key">"dob"</span>: <span class="json-string">"1998-03-15"</span>,
+  <span class="json-key">"time_of_birth"</span>: <span class="json-string">"14:30"</span>,
+  <span class="json-key">"place_of_birth"</span>: <span class="json-string">"Mumbai, Maharashtra"</span>,
+  <span class="json-key">"zodiac_sign"</span>: <span class="json-string">"Pisces"</span>
+}</pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Profile updated successfully"</span>,
+  <span class="json-key">"data"</span>: { <span style="color:#6868B0">/* full updated user object */</span> }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — Validation error</span>
+          <span class="status-chip status-4xx">401 — Unauthorized</span>
+          <span class="status-chip status-5xx">500 — Failed to update</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Account -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-DELETE">DELETE</span>
+        <span class="endpoint-path">/api/v1/users/me</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Permanently deletes the authenticated user's account. This is a hard delete required for
+          Apple App Store and Google Play policy compliance. <strong>This action is irreversible.</strong>
+        </p>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Account permanently deleted"</span>
+}</pre>
+        </div>
+
+        <div class="info-box danger">
+          <strong>⚠️ Irreversible:</strong> This permanently deletes the user record. There is no soft-delete or recovery mechanism.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 11. RELATIONSHIP APIs ===== -->
+  <div class="section" id="api-relationships">
+    <h2>11 · Relationship API Endpoints</h2>
+    <p class="section-desc">
+      Manage partner invitations, acceptance, and relationship status. A user can only be in one active or pending
+      relationship at a time.
+    </p>
+
+    <div class="info-box note">
+      <strong>🔒 Auth Required:</strong> All endpoints below require authentication.
+    </div>
+
+    <!-- Invite Partner -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-POST">POST</span>
+        <span class="endpoint-path">/api/v1/relationships/invite</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Invite a partner by their phone number. Creates a <code class="inline">pending</code> relationship.
+          The partner must already be registered on Twouple. Self-invites and duplicate relationships are
+          blocked with validation.
+        </p>
+
+        <h4>Request Body</h4>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">partner_phone</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="required-badge">Required</span></td>
+              <td>Partner's registered phone (10–15 chars)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">POST /api/v1/relationships/invite</div>
+          <pre>{
+  <span class="json-key">"partner_phone"</span>: <span class="json-string">"+919123456789"</span>
+}</pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Invitation sent successfully."</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-string">"rel-uuid-here"</span>,
+    <span class="json-key">"user_one_id"</span>: <span class="json-string">"inviter-uuid"</span>,
+    <span class="json-key">"user_two_id"</span>: <span class="json-string">"partner-uuid"</span>,
+    <span class="json-key">"status"</span>: <span class="json-string">"pending"</span>,
+    <span class="json-key">"composite_score"</span>: <span class="json-null">null</span>,
+    <span class="json-key">"established_at"</span>: <span class="json-null">null</span>
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — Self-invite / already in relationship</span>
+          <span class="status-chip status-4xx">400 — Partner not registered</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Get Status -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-GET">GET</span>
+        <span class="endpoint-path">/api/v1/relationships/status</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Get the current relationship status for the authenticated user. Returns partner details if a
+          relationship exists. Status can be <code class="inline">none</code>, <code class="inline">pending</code>, <code class="inline">active</code>, or <code class="inline">disconnected</code>.
+        </p>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"status"</span>: <span class="json-string">"active"</span>,
+    <span class="json-key">"data"</span>: {
+      <span class="json-key">"id"</span>: <span class="json-string">"rel-uuid"</span>,
+      <span class="json-key">"status"</span>: <span class="json-string">"active"</span>,
+      <span class="json-key">"PartnerOne"</span>: { <span class="json-key">"id"</span>: <span class="json-string">"..."</span>, <span class="json-key">"full_name"</span>: <span class="json-string">"Arjun"</span>, <span class="json-key">"phone_number"</span>: <span class="json-string">"..."</span> },
+      <span class="json-key">"PartnerTwo"</span>: { <span class="json-key">"id"</span>: <span class="json-string">"..."</span>, <span class="json-key">"full_name"</span>: <span class="json-string">"Priya"</span>, <span class="json-key">"phone_number"</span>: <span class="json-string">"..."</span> }
+    }
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accept Invitation -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-POST">POST</span>
+        <span class="endpoint-path">/api/v1/relationships/accept</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Accept a pending invitation. Only the invited user (<code class="inline">user_two</code>) can call this.
+          Changes status from <code class="inline">pending</code> → <code class="inline">active</code> and records <code class="inline">established_at</code> timestamp.
+        </p>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Relationship established!"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-string">"rel-uuid"</span>,
+    <span class="json-key">"status"</span>: <span class="json-string">"active"</span>,
+    <span class="json-key">"established_at"</span>: <span class="json-string">"2026-04-19T17:30:00.000Z"</span>
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — No pending invitation found</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 12. CHAT APIs ===== -->
+  <div class="section" id="api-chat">
+    <h2>12 · Chat API Endpoints</h2>
+    <p class="section-desc">
+      In-app messaging between partners. Messages are tied to the active relationship and support pagination.
+      The system also supports AI-generated messages (via the <code class="inline">is_ai</code> flag).
+    </p>
+
+    <!-- Send Message -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-POST">POST</span>
+        <span class="endpoint-path">/api/v1/chat/send</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Send a message within the user's active relationship. The user must be in an <code class="inline">active</code>
+          relationship to send messages.
+        </p>
+
+        <h4>Request Body</h4>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Validation</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">message_body</code></td>
+              <td><span class="type-badge">string</span></td>
+              <td><span class="required-badge">Required</span></td>
+              <td>1–2000 characters</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">POST /api/v1/chat/send</div>
+          <pre>{
+  <span class="json-key">"message_body"</span>: <span class="json-string">"Hey love, how's your day going? ❤️"</span>
+}</pre>
+        </div>
+
+        <h4>Success Response — 201 Created</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-string">"msg-uuid"</span>,
+    <span class="json-key">"relationship_id"</span>: <span class="json-string">"rel-uuid"</span>,
+    <span class="json-key">"sender_id"</span>: <span class="json-string">"user-uuid"</span>,
+    <span class="json-key">"message_body"</span>: <span class="json-string">"Hey love, how's your day going? ❤️"</span>,
+    <span class="json-key">"is_ai"</span>: <span class="json-bool">false</span>,
+    <span class="json-key">"createdAt"</span>: <span class="json-string">"2026-04-19T17:30:00.000Z"</span>
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — Validation failed</span>
+          <span class="status-chip status-4xx">403 — Not in active relationship</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Get History -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-GET">GET</span>
+        <span class="endpoint-path">/api/v1/chat/history</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Retrieve paginated chat history for the active relationship. Messages are ordered newest-first.
+          Includes sender info (<code class="inline">id</code> and <code class="inline">full_name</code>) for each message.
+        </p>
+
+        <h4>Query Parameters</h4>
+        <table>
+          <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">page</code></td>
+              <td><span class="type-badge">integer</span></td>
+              <td>1</td>
+              <td>Page number for pagination</td>
+            </tr>
+            <tr>
+              <td><code class="inline">limit</code></td>
+              <td><span class="type-badge">integer</span></td>
+              <td>50</td>
+              <td>Messages per page</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">GET /api/v1/chat/history?page=1&limit=20</div>
+          <pre><span style="color:#6868B0">No request body required</span></pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"total_messages"</span>: <span class="json-number">128</span>,
+    <span class="json-key">"total_pages"</span>: <span class="json-number">7</span>,
+    <span class="json-key">"current_page"</span>: <span class="json-number">1</span>,
+    <span class="json-key">"messages"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-string">"msg-uuid"</span>,
+        <span class="json-key">"message_body"</span>: <span class="json-string">"Thinking of you 💜"</span>,
+        <span class="json-key">"is_ai"</span>: <span class="json-bool">false</span>,
+        <span class="json-key">"createdAt"</span>: <span class="json-string">"2026-04-19T17:30:00.000Z"</span>,
+        <span class="json-key">"Sender"</span>: {
+          <span class="json-key">"id"</span>: <span class="json-string">"user-uuid"</span>,
+          <span class="json-key">"full_name"</span>: <span class="json-string">"Arjun Mehta"</span>
+        }
+      }
+    ]
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">404 — No active relationship</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 13. INSIGHTS APIs ===== -->
+  <div class="section" id="api-insights">
+    <h2>13 · Insights & Tasks API Endpoints</h2>
+    <p class="section-desc">
+      Astrology-powered daily dashboard with energy/logic/career scores, insight text, peak productivity windows,
+      and actionable do/avoid tasks.
+    </p>
+
+    <!-- Get Daily Insight -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-GET">GET</span>
+        <span class="endpoint-path">/api/v1/insights/daily</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Fetch the daily astrology dashboard for a specific date. If no insight exists for that date,
+          one is automatically generated with randomized scores and default do/avoid tasks (future:
+          connected to Ephemeris API for real calculations).
+        </p>
+
+        <h4>Query Parameters</h4>
+        <table>
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">date</code></td>
+              <td><span class="type-badge">date</span></td>
+              <td><span class="required-badge">Required</span></td>
+              <td>ISO date format: <code class="inline">YYYY-MM-DD</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">GET /api/v1/insights/daily?date=2026-04-19</div>
+          <pre><span style="color:#6868B0">No request body required</span></pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"insight"</span>: {
+      <span class="json-key">"id"</span>: <span class="json-string">"insight-uuid"</span>,
+      <span class="json-key">"user_id"</span>: <span class="json-string">"user-uuid"</span>,
+      <span class="json-key">"date"</span>: <span class="json-string">"2026-04-19"</span>,
+      <span class="json-key">"energy_score"</span>: <span class="json-number">85</span>,
+      <span class="json-key">"logic_score"</span>: <span class="json-number">72</span>,
+      <span class="json-key">"career_score"</span>: <span class="json-number">91</span>,
+      <span class="json-key">"insight_text"</span>: <span class="json-string">"The moon is transiting your sector of communication today, Pisces..."</span>,
+      <span class="json-key">"peak_window_start"</span>: <span class="json-string">"14:00:00"</span>,
+      <span class="json-key">"peak_window_end"</span>: <span class="json-string">"16:30:00"</span>
+    },
+    <span class="json-key">"tasks"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-string">"task-uuid"</span>,
+        <span class="json-key">"type"</span>: <span class="json-string">"do"</span>,
+        <span class="json-key">"task_text"</span>: <span class="json-string">"Initiate a tough conversation"</span>,
+        <span class="json-key">"is_completed"</span>: <span class="json-bool">false</span>
+      },
+      {
+        <span class="json-key">"id"</span>: <span class="json-string">"task-uuid-2"</span>,
+        <span class="json-key">"type"</span>: <span class="json-string">"avoid"</span>,
+        <span class="json-key">"task_text"</span>: <span class="json-string">"Making large financial investments"</span>,
+        <span class="json-key">"is_completed"</span>: <span class="json-bool">false</span>
+      }
+    ]
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">400 — Invalid date format</span>
+          <span class="status-chip status-5xx">500 — Internal error</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toggle Task -->
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-PATCH">PATCH</span>
+        <span class="endpoint-path">/api/v1/insights/tasks/:taskId/toggle</span>
+        <span class="endpoint-auth">🔒 AUTH</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="endpoint-desc">
+          Toggle the completion state of a specific task. Flips <code class="inline">is_completed</code> between
+          <code class="inline">true</code> and <code class="inline">false</code>. Only the owner of the task can toggle it.
+        </p>
+
+        <h4>URL Parameters</h4>
+        <table>
+          <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">:taskId</code></td>
+              <td><span class="type-badge">UUID</span></td>
+              <td>The unique ID of the task to toggle</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example Request</h4>
+        <div class="code-block">
+          <div class="code-label">PATCH /api/v1/insights/tasks/abc123-def456/toggle</div>
+          <pre><span style="color:#6868B0">No request body required</span></pre>
+        </div>
+
+        <h4>Success Response — 200 OK</h4>
+        <div class="code-block">
+          <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-string">"task-uuid"</span>,
+    <span class="json-key">"type"</span>: <span class="json-string">"do"</span>,
+    <span class="json-key">"task_text"</span>: <span class="json-string">"Initiate a tough conversation"</span>,
+    <span class="json-key">"is_completed"</span>: <span class="json-bool">true</span>
+  }
+}</pre>
+        </div>
+
+        <h4>Error Responses</h4>
+        <div class="status-list">
+          <span class="status-chip status-4xx">404 — Task not found</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 14. DATABASE MODELS ===== -->
+  <div class="section" id="db-models">
+    <h2>14 · Database Models & Schemas</h2>
+    <p class="section-desc">
+      All models use Sequelize ORM with UUID primary keys, automatic timestamps, and MySQL as the dialect.
+      Tables are auto-synced in development via <code class="inline">sequelize.sync({ alter: true })</code>.
+    </p>
+
+    <!-- User Model -->
+    <div class="model-card">
+      <div class="model-header">
+        <h3>👤 User</h3>
+        <span class="model-table-name">users</span>
+      </div>
+      <div class="model-body">
+        <table>
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">id</code></td><td><span class="type-badge">UUID</span></td><td>PK, auto-generated</td><td>Unique user identifier</td></tr>
+            <tr><td><code class="inline">phone_number</code></td><td><span class="type-badge">STRING(20)</span></td><td>NOT NULL, UNIQUE, indexed</td><td>User's phone number</td></tr>
+            <tr><td><code class="inline">full_name</code></td><td><span class="type-badge">STRING(100)</span></td><td>NULLABLE</td><td>Display name</td></tr>
+            <tr><td><code class="inline">dob</code></td><td><span class="type-badge">DATEONLY</span></td><td>NULLABLE</td><td>Date of birth (YYYY-MM-DD)</td></tr>
+            <tr><td><code class="inline">time_of_birth</code></td><td><span class="type-badge">TIME</span></td><td>NULLABLE</td><td>Birth time for astrology</td></tr>
+            <tr><td><code class="inline">place_of_birth</code></td><td><span class="type-badge">STRING(255)</span></td><td>NULLABLE</td><td>Birth location for charts</td></tr>
+            <tr><td><code class="inline">zodiac_sign</code></td><td><span class="type-badge">STRING(20)</span></td><td>NULLABLE</td><td>Western zodiac sign</td></tr>
+            <tr><td><code class="inline">is_premium</code></td><td><span class="type-badge">BOOLEAN</span></td><td>DEFAULT false</td><td>Premium subscription flag</td></tr>
+            <tr><td><code class="inline">createdAt</code></td><td><span class="type-badge">DATETIME</span></td><td>Auto</td><td>Registration date</td></tr>
+            <tr><td><code class="inline">updatedAt</code></td><td><span class="type-badge">DATETIME</span></td><td>Auto</td><td>Last profile update</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Relationship Model -->
+    <div class="model-card">
+      <div class="model-header">
+        <h3>💜 Relationship</h3>
+        <span class="model-table-name">relationships</span>
+      </div>
+      <div class="model-body">
+        <table>
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">id</code></td><td><span class="type-badge">UUID</span></td><td>PK</td><td>Relationship identifier</td></tr>
+            <tr><td><code class="inline">user_one_id</code></td><td><span class="type-badge">UUID</span></td><td>FK → users.id</td><td>Inviter (partner one)</td></tr>
+            <tr><td><code class="inline">user_two_id</code></td><td><span class="type-badge">UUID</span></td><td>FK → users.id</td><td>Invitee (partner two)</td></tr>
+            <tr><td><code class="inline">status</code></td><td><span class="type-badge">ENUM</span></td><td>pending | active | disconnected</td><td>Current relationship state</td></tr>
+            <tr><td><code class="inline">composite_score</code></td><td><span class="type-badge">INTEGER</span></td><td>NULLABLE</td><td>Compatibility score (future)</td></tr>
+            <tr><td><code class="inline">established_at</code></td><td><span class="type-badge">DATETIME</span></td><td>NULLABLE</td><td>When accepted by partner</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ChatMessage Model -->
+    <div class="model-card">
+      <div class="model-header">
+        <h3>💬 ChatMessage</h3>
+        <span class="model-table-name">chat_messages</span>
+      </div>
+      <div class="model-body">
+        <table>
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">id</code></td><td><span class="type-badge">UUID</span></td><td>PK</td><td>Message identifier</td></tr>
+            <tr><td><code class="inline">relationship_id</code></td><td><span class="type-badge">UUID</span></td><td>FK → relationships.id</td><td>Which relationship this belongs to</td></tr>
+            <tr><td><code class="inline">sender_id</code></td><td><span class="type-badge">UUID</span></td><td>FK → users.id, NULLABLE</td><td>Who sent it (null = AI)</td></tr>
+            <tr><td><code class="inline">message_body</code></td><td><span class="type-badge">TEXT</span></td><td>NOT NULL</td><td>Message content</td></tr>
+            <tr><td><code class="inline">is_ai</code></td><td><span class="type-badge">BOOLEAN</span></td><td>DEFAULT false</td><td>Whether AI generated</td></tr>
+            <tr><td><code class="inline">createdAt</code></td><td><span class="type-badge">DATETIME</span></td><td>Auto, indexed</td><td>When message was sent</td></tr>
+          </tbody>
+        </table>
+        <div style="padding: 16px 24px;">
+          <div class="info-box note" style="margin-bottom:0;">
+            <strong>Performance:</strong> Composite index on <code class="inline">[relationship_id, createdAt]</code> for fast chat history retrieval. <code class="inline">updatedAt</code> is disabled to save DB space.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DailyInsight Model -->
+    <div class="model-card">
+      <div class="model-header">
+        <h3>🔮 DailyInsight</h3>
+        <span class="model-table-name">daily_insights</span>
+      </div>
+      <div class="model-body">
+        <table>
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">id</code></td><td><span class="type-badge">UUID</span></td><td>PK</td><td>Insight identifier</td></tr>
+            <tr><td><code class="inline">user_id</code></td><td><span class="type-badge">UUID</span></td><td>FK → users.id</td><td>Owner user</td></tr>
+            <tr><td><code class="inline">date</code></td><td><span class="type-badge">DATEONLY</span></td><td>NOT NULL, unique with user_id</td><td>Target date</td></tr>
+            <tr><td><code class="inline">energy_score</code></td><td><span class="type-badge">INTEGER</span></td><td>DEFAULT 50</td><td>0–100 energy score</td></tr>
+            <tr><td><code class="inline">logic_score</code></td><td><span class="type-badge">INTEGER</span></td><td>DEFAULT 50</td><td>0–100 logic/mental score</td></tr>
+            <tr><td><code class="inline">career_score</code></td><td><span class="type-badge">INTEGER</span></td><td>DEFAULT 50</td><td>0–100 career score</td></tr>
+            <tr><td><code class="inline">insight_text</code></td><td><span class="type-badge">TEXT</span></td><td>NULLABLE</td><td>AI-generated insight message</td></tr>
+            <tr><td><code class="inline">peak_window_start</code></td><td><span class="type-badge">TIME</span></td><td>NULLABLE</td><td>Start of peak productivity</td></tr>
+            <tr><td><code class="inline">peak_window_end</code></td><td><span class="type-badge">TIME</span></td><td>NULLABLE</td><td>End of peak productivity</td></tr>
+          </tbody>
+        </table>
+        <div style="padding: 16px 24px;">
+          <div class="info-box note" style="margin-bottom:0;">
+            <strong>Constraint:</strong> Unique composite index on <code class="inline">[user_id, date]</code> — one insight per user per day.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UserTask Model -->
+    <div class="model-card">
+      <div class="model-header">
+        <h3>✅ UserTask</h3>
+        <span class="model-table-name">user_tasks</span>
+      </div>
+      <div class="model-body">
+        <table>
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">id</code></td><td><span class="type-badge">UUID</span></td><td>PK</td><td>Task identifier</td></tr>
+            <tr><td><code class="inline">user_id</code></td><td><span class="type-badge">UUID</span></td><td>FK → users.id</td><td>Owner user</td></tr>
+            <tr><td><code class="inline">type</code></td><td><span class="type-badge">ENUM</span></td><td>do | avoid</td><td>Task category</td></tr>
+            <tr><td><code class="inline">task_text</code></td><td><span class="type-badge">STRING(255)</span></td><td>NOT NULL</td><td>Task description</td></tr>
+            <tr><td><code class="inline">is_completed</code></td><td><span class="type-badge">BOOLEAN</span></td><td>DEFAULT false</td><td>Completion flag</td></tr>
+            <tr><td><code class="inline">date</code></td><td><span class="type-badge">DATEONLY</span></td><td>NOT NULL</td><td>Which date this task is for</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 15. DATABASE RELATIONSHIPS ===== -->
+  <div class="section" id="db-relationships">
+    <h2>15 · Database Relationships (ERD)</h2>
+    <p class="section-desc">
+      All associations are defined centrally in <code class="inline">models/index.js</code> to prevent circular dependency issues.
+    </p>
+
+    <div class="code-block">
+      <pre>
+┌──────────────┐         ┌───────────────────┐         ┌──────────────────┐
+│     User     │ 1───M   │   Relationship    │  1───M  │   ChatMessage    │
+│──────────────│◄────────│───────────────────│◄────────│──────────────────│
+│ id (PK)      │         │ id (PK)           │         │ id (PK)          │
+│ phone_number │         │ user_one_id (FK)  │         │ relationship_id  │
+│ full_name    │         │ user_two_id (FK)  │         │ sender_id (FK)   │
+│ dob          │         │ status            │         │ message_body     │
+│ zodiac_sign  │         │ composite_score   │         │ is_ai            │
+│ is_premium   │         │ established_at    │         │ createdAt        │
+└──────┬───────┘         └───────────────────┘         └──────────────────┘
+       │
+       │ 1───M
+       ▼
+┌──────────────────┐     ┌──────────────────┐
+│  DailyInsight    │     │    UserTask       │
+│──────────────────│     │──────────────────│
+│ id (PK)          │     │ id (PK)          │
+│ user_id (FK)     │     │ user_id (FK)     │
+│ date             │     │ type (do/avoid)  │
+│ energy_score     │     │ task_text        │
+│ logic_score      │     │ is_completed     │
+│ career_score     │     │ date             │
+│ insight_text     │     └──────────────────┘
+│ peak_window_*    │           ▲
+└──────────────────┘           │ 1───M
+                               │
+                    User ──────┘</pre>
+    </div>
+
+    <h3>Association Summary</h3>
+
+    <div class="rel-line"><code>User</code> <span class="rel-arrow">→</span> hasMany <code>Relationship</code> (as PartnerOne via user_one_id)</div>
+    <div class="rel-line"><code>User</code> <span class="rel-arrow">→</span> hasMany <code>Relationship</code> (as PartnerTwo via user_two_id)</div>
+    <div class="rel-line"><code>Relationship</code> <span class="rel-arrow">→</span> belongsTo <code>User</code> (PartnerOne)</div>
+    <div class="rel-line"><code>Relationship</code> <span class="rel-arrow">→</span> belongsTo <code>User</code> (PartnerTwo)</div>
+    <div class="rel-line"><code>Relationship</code> <span class="rel-arrow">→</span> hasMany <code>ChatMessage</code> (as Messages)</div>
+    <div class="rel-line"><code>ChatMessage</code> <span class="rel-arrow">→</span> belongsTo <code>Relationship</code></div>
+    <div class="rel-line"><code>User</code> <span class="rel-arrow">→</span> hasMany <code>ChatMessage</code> (sender)</div>
+    <div class="rel-line"><code>ChatMessage</code> <span class="rel-arrow">→</span> belongsTo <code>User</code> (as Sender)</div>
+    <div class="rel-line"><code>User</code> <span class="rel-arrow">→</span> hasMany <code>DailyInsight</code></div>
+    <div class="rel-line"><code>User</code> <span class="rel-arrow">→</span> hasMany <code>UserTask</code></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 16. SERVICES ===== -->
+  <div class="section" id="services">
+    <h2>16 · Business Logic Services</h2>
+    <p class="section-desc">
+      Services contain the core business logic, keeping controllers thin. Controllers validate input and
+      format responses — services handle the heavy lifting.
+    </p>
+
+    <h3>authService.js</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">processOtpRequest(phoneNumber)</code></td><td>Generates and dispatches OTP. Uses dummy <code class="inline">1234</code> in dev mode. Production: Twilio/AWS SNS integration point.</td></tr>
+        <tr><td><code class="inline">verifyAndProvisionUser(phoneNumber, otp)</code></td><td>Validates OTP → <code class="inline">findOrCreate</code> user → signs JWT (30-day expiry). Returns token, isNewUser flag, and basic user info.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>userService.js</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">getUserById(userId)</code></td><td>Fetches user profile, excludes <code class="inline">createdAt</code>/<code class="inline">updatedAt</code> timestamps from response.</td></tr>
+        <tr><td><code class="inline">updateUser(userId, updateData)</code></td><td>Updates user fields. Returns fresh profile after update.</td></tr>
+        <tr><td><code class="inline">deleteUser(userId)</code></td><td>Hard deletes the user record. Apple/Google compliance requirement.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>syncService.js</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">invitePartner(userId, partnerPhone)</code></td><td>Creates a pending relationship. Validates: no self-invite, partner exists, neither user already paired.</td></tr>
+        <tr><td><code class="inline">getRelationshipStatus(userId)</code></td><td>Returns relationship status with both partners' info (name, phone). Returns <code class="inline">{ status: 'none' }</code> if single.</td></tr>
+        <tr><td><code class="inline">acceptInvitation(userId)</code></td><td>Accepts a pending invite where user is <code class="inline">user_two</code>. Sets status to <code class="inline">active</code> and <code class="inline">established_at</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>chatService.js</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">sendMessage(userId, messageBody)</code></td><td>Saves a message to the active relationship. Sets <code class="inline">is_ai: false</code> for user messages.</td></tr>
+        <tr><td><code class="inline">getChatHistory(userId, page, limit)</code></td><td>Paginated history, newest-first. Includes Sender details. Returns <code class="inline">total_messages</code>, <code class="inline">total_pages</code>, <code class="inline">current_page</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>astrologyService.js</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">getDailyDashboard(userId, date)</code></td><td>Fetch or auto-generate daily insight. Creates randomized scores (60–100) and default do/avoid tasks on first request.</td></tr>
+        <tr><td><code class="inline">toggleTaskCompletion(userId, taskId)</code></td><td>Flips <code class="inline">is_completed</code> boolean for the specified task. Ownership-validated.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>aiService.js</h3>
+    <div class="info-box warning">
+      <strong>🚧 Placeholder:</strong> This service is currently empty. It will integrate with an LLM (e.g., OpenAI, Gemini)
+      for relationship advice and AI-powered chat features in a future release.
+    </div>
+  </div>
+
+  <!-- ===== 17. MIDDLEWARES ===== -->
+  <div class="section" id="middlewares">
+    <h2>17 · Middlewares Reference</h2>
+
+    <h3>authMiddleware.js — <code class="inline">protect</code></h3>
+    <p>
+      Extracts the JWT token from the <code class="inline">Authorization: Bearer</code> header, verifies it cryptographically,
+      confirms the user exists in the DB, and attaches <code class="inline">req.user</code> (with <code class="inline">id</code>,
+      <code class="inline">phone_number</code>, <code class="inline">is_premium</code>) for downstream handlers.
+    </p>
+
+    <h3>errorMiddleware.js — <code class="inline">notFound</code> + <code class="inline">errorHandler</code></h3>
+    <p>
+      <strong>notFound:</strong> Catches any request that doesn't match a defined route and returns a 404 with the attempted URL.<br>
+      <strong>errorHandler:</strong> Global error catcher. Returns error message and stack trace (dev only). Falls back to HTTP 500.
+    </p>
+
+    <h3>validation.js — <code class="inline">validateRequest(schema)</code></h3>
+    <p>
+      A higher-order function that takes a Joi schema and returns Express middleware. Features:
+    </p>
+    <ul>
+      <li><code class="inline">abortEarly: false</code> — returns ALL validation errors, not just the first</li>
+      <li><code class="inline">stripUnknown: true</code> — silently removes unexpected fields from the request body</li>
+      <li>Replaces <code class="inline">req.body</code> with sanitized values after validation</li>
+    </ul>
+
+    <h3>rateLimiter.js</h3>
+    <p>Rate limiting middleware using <code class="inline">express-rate-limit</code>. See the Rate Limiting section below for details.</p>
+  </div>
+
+  <!-- ===== 18. UTILITIES ===== -->
+  <div class="section" id="utilities">
+    <h2>18 · Utility Modules</h2>
+
+    <h3>locationFormatter.js — <code class="inline">getCoordinates(cityName)</code></h3>
+    <p>
+      Geocoding utility that converts a city name to latitude/longitude using the Nominatim (OpenStreetMap) API.
+      Returns <code class="inline">{ lat, lng, formatted_name }</code>. Used for astrological birth chart calculations.
+      Production would swap this for Google Maps Geocoding API.
+    </p>
+
+    <h3>logger.js</h3>
+    <p>
+      Environment-aware logging utility with three levels:
+    </p>
+    <ul>
+      <li><code class="inline">logger.info(message, meta)</code> — 🔵 Blue info logs</li>
+      <li><code class="inline">logger.warn(message, meta)</code> — 🟠 Orange warning logs</li>
+      <li><code class="inline">logger.error(message, errorObj)</code> — 🔴 Red error logs with stack trace</li>
+    </ul>
+    <p>
+      In development: colored emoji-prefixed console output.<br>
+      In production: structured JSON output for log aggregation tools (CloudWatch, Datadog, etc.).
+    </p>
+
+    <h3>whatsappParser.js — <code class="inline">cleanWhatsAppChat(rawText)</code></h3>
+    <p>
+      Cleans and normalizes exported WhatsApp chat text for AI analysis. Features:
+    </p>
+    <ul>
+      <li>Strips WhatsApp timestamp patterns (multiple formats)</li>
+      <li>Replaces media omitted tags with readable labels</li>
+      <li>Removes empty lines and trims whitespace</li>
+      <li>Token safeguard: caps output at ~3000 words (most recent) to fit within AI context windows</li>
+    </ul>
+  </div>
+
+  <!-- ===== 19. ERROR HANDLING ===== -->
+  <div class="section" id="error-handling">
+    <h2>19 · Global Error Handling</h2>
+    <p class="section-desc">
+      The API uses a two-layer error catching approach attached at the end of the Express middleware chain.
+    </p>
+
+    <h3>Standard Error Response Format</h3>
+    <div class="code-block">
+      <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Error description here"</span>,
+  <span class="json-key">"stack"</span>: <span class="json-string">"Error stack trace (dev only)"</span>
+}</pre>
+    </div>
+
+    <h3>Error Flow</h3>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <h5>Route not matched</h5>
+          <p><code class="inline">notFound</code> middleware catches it → sets status 404 → passes to errorHandler</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <h5>Error thrown in handler</h5>
+          <p><code class="inline">errorHandler</code> catches it → logs error → returns JSON with status code and message</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <h5>Stack trace visibility</h5>
+          <p>Stack traces are only included in the response when <code class="inline">NODE_ENV === 'development'</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 20. RATE LIMITING ===== -->
+  <div class="section" id="rate-limiting">
+    <h2>20 · Rate Limiting Strategy</h2>
+    <p class="section-desc">
+      Two tiers of rate limiting protect the API from abuse and control costs on expensive operations.
+    </p>
+
+    <div class="arch-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="arch-card">
+        <div class="arch-icon">🟢</div>
+        <h5>Standard Limiter</h5>
+        <p><strong>100 requests / 15 minutes</strong></p>
+        <p style="margin-top:8px;">For general endpoints: profile, status, chat history</p>
+      </div>
+      <div class="arch-card" style="border-color: rgba(239,68,68,0.3);">
+        <div class="arch-icon">🔴</div>
+        <h5>Strict Limiter</h5>
+        <p><strong>5 requests / 1 hour</strong></p>
+        <p style="margin-top:8px;">For expensive operations: OTP requests, AI endpoints</p>
+      </div>
+    </div>
+
+    <h4>Rate Limit Error Response</h4>
+    <div class="code-block">
+      <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"Too many requests from this IP, please try again after 15 minutes."</span>
+}</pre>
+    </div>
+
+    <p>Rate limit headers are included in responses via <code class="inline">standardHeaders: true</code> (RFC 6585 compliant).</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== API SUMMARY TABLE ===== -->
+  <div class="section" id="api-summary">
+    <h2>📋 Complete API Summary</h2>
+    <p class="section-desc">Quick reference table of all available endpoints.</p>
+
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method-badge method-GET" style="font-size:10px;">GET</span></td>
+          <td><code class="inline">/api/v1/health</code></td>
+          <td>🌐 Public</td>
+          <td>Health check</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-POST" style="font-size:10px;">POST</span></td>
+          <td><code class="inline">/api/v1/auth/request-otp</code></td>
+          <td>🌐 Public</td>
+          <td>Request OTP for phone number</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-POST" style="font-size:10px;">POST</span></td>
+          <td><code class="inline">/api/v1/auth/verify-otp</code></td>
+          <td>🌐 Public</td>
+          <td>Verify OTP & get JWT token</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-GET" style="font-size:10px;">GET</span></td>
+          <td><code class="inline">/api/v1/users/me</code></td>
+          <td>🔒 Auth</td>
+          <td>Get own profile</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-PUT" style="font-size:10px;">PUT</span></td>
+          <td><code class="inline">/api/v1/users/me</code></td>
+          <td>🔒 Auth</td>
+          <td>Update profile (onboarding)</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-DELETE" style="font-size:10px;">DEL</span></td>
+          <td><code class="inline">/api/v1/users/me</code></td>
+          <td>🔒 Auth</td>
+          <td>Delete account permanently</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-POST" style="font-size:10px;">POST</span></td>
+          <td><code class="inline">/api/v1/relationships/invite</code></td>
+          <td>🔒 Auth</td>
+          <td>Invite partner by phone</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-GET" style="font-size:10px;">GET</span></td>
+          <td><code class="inline">/api/v1/relationships/status</code></td>
+          <td>🔒 Auth</td>
+          <td>Get relationship status</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-POST" style="font-size:10px;">POST</span></td>
+          <td><code class="inline">/api/v1/relationships/accept</code></td>
+          <td>🔒 Auth</td>
+          <td>Accept partner invitation</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-POST" style="font-size:10px;">POST</span></td>
+          <td><code class="inline">/api/v1/chat/send</code></td>
+          <td>🔒 Auth</td>
+          <td>Send a chat message</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-GET" style="font-size:10px;">GET</span></td>
+          <td><code class="inline">/api/v1/chat/history</code></td>
+          <td>🔒 Auth</td>
+          <td>Get paginated chat history</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-GET" style="font-size:10px;">GET</span></td>
+          <td><code class="inline">/api/v1/insights/daily</code></td>
+          <td>🔒 Auth</td>
+          <td>Get daily astrology dashboard</td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-PATCH" style="font-size:10px;">PATCH</span></td>
+          <td><code class="inline">/api/v1/insights/tasks/:taskId/toggle</code></td>
+          <td>🔒 Auth</td>
+          <td>Toggle task completion</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px;">
+    <p style="color:var(--text-muted); font-size: 13px; margin-bottom: 6px;">
+      💜 Twouple API Documentation — v1.0.0
+    </p>
+    <p style="color:var(--text-muted); font-size: 12px;">
+      Generated April 2026 · Node.js + Express + MySQL + Sequelize
+    </p>
+  </div>
+
+</div>
+
+<!-- Scroll to top button -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // Show/hide scroll to top button
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollTop');
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // Smooth scroll for sidebar links
+  document.querySelectorAll('.sidebar a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
