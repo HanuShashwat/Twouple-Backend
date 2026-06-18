@@ -19,7 +19,7 @@ const startServer = async () => {
     console.log('✅ Database models synchronized and tables auto-created.');
 
     // 3. Start the Express App
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Twouple Server is running on port ${PORT}`);
     });
   } catch (error) {
