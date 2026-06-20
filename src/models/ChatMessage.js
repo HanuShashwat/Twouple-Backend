@@ -11,7 +11,7 @@ const ChatMessage = sequelize.define('ChatMessage', {
   },
   relationship_id: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true, // Nullable: null for AI coach messages, set for partner chat messages
     references: { model: Relationship, key: 'id' }
   },
   sender_id: {
