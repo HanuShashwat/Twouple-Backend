@@ -34,7 +34,4 @@ const DailyInsight = sequelize.define('DailyInsight', {
   ]
 });
 
-User.hasMany(DailyInsight, { foreignKey: 'user_id' });
-DailyInsight.belongsTo(User, { foreignKey: 'user_id' });
-
 module.exports = DailyInsight;
