@@ -34,7 +34,4 @@ const UserTask = sequelize.define('UserTask', {
   tableName: 'user_tasks'
 });
 
-User.hasMany(UserTask, { foreignKey: 'user_id' });
-UserTask.belongsTo(User, { foreignKey: 'user_id' });
-
 module.exports = UserTask;
