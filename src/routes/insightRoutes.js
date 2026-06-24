@@ -11,4 +11,7 @@ router.get('/daily', insightController.getDailyData);
 // PATCH /api/v1/insights/tasks/:taskId/toggle
 router.patch('/tasks/:taskId/toggle', insightController.toggleTask);
 
+// POST /api/v1/insights/tasks
+router.post('/tasks', insightController.addTask);
+
 module.exports = router;
