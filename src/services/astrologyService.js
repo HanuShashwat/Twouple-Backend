@@ -11,26 +11,31 @@ exports.getDailyDashboard = async (userId, targetDate) => {
     where: { user_id: userId, date: targetDate }
   });
 
-  // 2. If it doesn't exist, calculate and generate it on the fly
+  // 2. If it doesn't exist, generate it using AI (or fallback to defaults)
   if (!insight) {
-    // [TODO]: Connect to external Ephemeris API here using user.place_of_birth and user.time_of_birth
-    // For now, we simulate the astrological math with dynamic defaults
-    insight = await DailyInsight.create({
-      user_id: userId,
-      date: targetDate,
-      energy_score: Math.floor(Math.random() * 40) + 60, // Random score between 60-100
-      logic_score: Math.floor(Math.random() * 40) + 60,
-      career_score: Math.floor(Math.random() * 40) + 60,
-      insight_text: `The moon is transiting your sector of communication today, ${user.zodiac_sign || 'friend'}. Expect clear thoughts and high energy.`,
-      peak_window_start: '14:00:00',
-      peak_window_end: '16:30:00'
-    });
+    try {
+      const aiService = require('./aiService');
+      const aiResult = await aiService.generateDailyInsight(userId, targetDate);
+      insight = aiResult.insight;
+    } catch (aiError) {
+      console.warn('[Astrology] AI insight generation failed, using defaults:', aiError.message);
+      // Fallback: generate with reasonable defaults if AI is not configured
+      insight = await DailyInsight.create({
+        user_id: userId,
+        date: targetDate,
+        energy_score: Math.floor(Math.random() * 40) + 60,
+        logic_score: Math.floor(Math.random() * 40) + 60,
+        career_score: Math.floor(Math.random() * 40) + 60,
+        insight_text: `The moon is transiting your sector of communication today, ${user.zodiac_sign || 'friend'}. Expect clear thoughts and high energy.`,
+        peak_window_start: '14:00:00',
+        peak_window_end: '16:30:00'
+      });
 
-    // Auto-generate some default DO and AVOID tasks for the day based on the transits
-    await UserTask.bulkCreate([
-      { user_id: userId, date: targetDate, type: 'do', task_text: 'Initiate a tough conversation' },
-      { user_id: userId, date: targetDate, type: 'avoid', task_text: 'Making large financial investments' }
-    ]);
+      await UserTask.bulkCreate([
+        { user_id: userId, date: targetDate, type: 'do', task_text: 'Initiate a tough conversation' },
+        { user_id: userId, date: targetDate, type: 'avoid', task_text: 'Making large financial investments' }
+      ]);
+    }
   }
 
   // 3. Fetch the tasks for this specific date
