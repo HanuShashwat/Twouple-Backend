@@ -7,6 +7,7 @@ const relationshipRoutes = require('./relationshipRoutes');
 const insightRoutes = require('./insightRoutes');
 const chatRoutes = require('./chatRoutes');
 const coachRoutes = require('./coachRoutes');
+const importRoutes = require('./importRoutes');
 
 // Mount the feature routes
 router.use('/auth', authRoutes);
@@ -15,6 +16,7 @@ router.use('/relationships', relationshipRoutes);
 router.use('/insights', insightRoutes);
 router.use('/chat', chatRoutes);
 router.use('/coach', coachRoutes);
+router.use('/import', importRoutes);
 
 
 module.exports = router;
