@@ -9,7 +9,7 @@ const startServer = async () => {
   try {
     // 1. Authenticate connection
     await sequelize.authenticate();
-    console.log('✅ MySQL Database connected successfully.');
+    console.log('✅ Database connected successfully.');
 
     // 2. AUTO-CREATE TABLES
     // { alter: true } safely updates tables to match your models. 
