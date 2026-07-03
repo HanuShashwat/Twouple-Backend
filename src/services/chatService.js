@@ -1,6 +1,8 @@
 const ChatMessage = require('../models/ChatMessage');
 const Relationship = require('../models/Relationship');
 const User = require('../models/User');
+const { Op } = require('sequelize');
+const socketHandler = require('../websockets/socketHandler');
 
 exports.sendMessage = async (userId, messageBody) => {
   // 1. Find the user's active relationship
@@ -8,7 +10,7 @@ exports.sendMessage = async (userId, messageBody) => {
     where: {
       status: 'active',
       // Check if user is either partner 1 or 2
-      $or: [{ user_one_id: userId }, { user_two_id: userId }] 
+      [Op.or]: [{ user_one_id: userId }, { user_two_id: userId }] 
     }
   });
 
@@ -22,13 +24,16 @@ exports.sendMessage = async (userId, messageBody) => {
     is_ai: false
   });
 
+  // 3. Emit the message to the relationship room
+  socketHandler.emitNewMessage(relationship.id, message);
+
   return message;
 };
 
 exports.getChatHistory = async (userId, page = 1, limit = 50) => {
   // Find active relationship
   const relationship = await Relationship.findOne({
-    where: { status: 'active', $or: [{ user_one_id: userId }, { user_two_id: userId }] }
+    where: { status: 'active', [Op.or]: [{ user_one_id: userId }, { user_two_id: userId }] }
   });
 
   if (!relationship) throw new Error('No active relationship found.');
