@@ -1,5 +1,9 @@
 require('dotenv').config();
+const http = require('http');
 const app = require('./app');
+const { Server } = require('socket.io');
+const socketHandler = require('./websockets/socketHandler');
+
 // Import the central hub, not just the db connection!
 const { sequelize } = require('./models'); 
 
@@ -18,8 +22,22 @@ const startServer = async () => {
     await sequelize.sync({ alter: isDev }); 
     console.log('✅ Database models synchronized and tables auto-created.');
 
-    // 3. Start the Express App
-    app.listen(PORT, '0.0.0.0', () => {
+    // 3. Start the Express App with HTTP Server and Socket.io
+    const server = http.createServer(app);
+    const io = new Server(server, {
+      cors: {
+        origin: '*', // For development, allow all
+        methods: ['GET', 'POST']
+      }
+    });
+
+    // Make io accessible globally if needed, or pass to app
+    app.set('io', io);
+
+    // Initialize socket handler
+    socketHandler.init(io);
+
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Twouple Server is running on port ${PORT}`);
     });
   } catch (error) {
