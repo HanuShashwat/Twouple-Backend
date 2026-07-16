@@ -12,6 +12,9 @@ router.get('/me', userController.getProfile);
 // PUT /api/v1/users/me - Update profile (Onboarding)
 router.put('/me', userController.updateProfile);
 
+// PUT /api/v1/users/me/fcm - Update FCM Token
+router.put('/me/fcm', userController.updateFcmToken);
+
 // DELETE /api/v1/users/me - Delete account
 router.delete('/me', userController.deleteAccount);
 
