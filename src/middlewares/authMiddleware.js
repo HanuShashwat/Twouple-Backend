@@ -38,4 +38,16 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const requirePremium = (req, res, next) => {
+  if (req.user && req.user.is_premium) {
+    next();
+  } else {
+    return res.status(403).json({ 
+      success: false, 
+      message: 'This feature requires a Premium subscription.',
+      code: 'PREMIUM_REQUIRED'
+    });
+  }
+};
+
+module.exports = { protect, requirePremium };
