@@ -52,3 +52,18 @@ exports.deleteAccount = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Failed to delete account' });
   }
 };
+
+// Update FCM Token
+exports.updateFcmToken = async (req, res) => {
+  const { fcm_token } = req.body;
+  if (!fcm_token) {
+    return res.status(400).json({ success: false, message: 'fcm_token is required' });
+  }
+
+  try {
+    const updatedUser = await userService.updateUser(req.user.id, { fcm_token });
+    return res.status(200).json({ success: true, message: 'FCM token updated', data: updatedUser });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to update FCM token', error: err.message });
+  }
+};
