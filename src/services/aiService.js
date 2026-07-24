@@ -194,6 +194,8 @@ exports.getCoachHistory = async (userId, page = 1, limit = 50) => {
   };
 };
 
+const astrologyService = require('./astrologyService');
+
 /**
  * Generate a personalized daily insight using AI.
  */
@@ -201,9 +203,11 @@ exports.generateDailyInsight = async (userId, date) => {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('User not found');
 
+  const transitData = await astrologyService.getTransitData(date);
+
   const prompt = `Generate a personalized daily astrological insight for a ${user.zodiac_sign || 'person'} born on ${user.dob || 'unknown date'} at ${user.time_of_birth || 'unknown time'} in ${user.place_of_birth || 'unknown location'}.
 
-Today's date is ${date}. Generate:
+Today's date is ${date}. Current cosmic transits: ${transitData}. Generate:
 1. A rich, personalized insight paragraph (3-5 sentences) about their day ahead covering love, career, and personal energy
 2. An energy score (40-100)
 3. A logic/clarity score (40-100) 
