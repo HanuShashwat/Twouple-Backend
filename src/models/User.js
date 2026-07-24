@@ -38,6 +38,10 @@ const User = sequelize.define('User', {
   is_premium: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  fcm_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
   }
 }, {
   timestamps: true,
