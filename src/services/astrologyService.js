@@ -2,6 +2,38 @@ const DailyInsight = require('../models/DailyInsight');
 const UserTask = require('../models/UserTask');
 const User = require('../models/User');
 
+// Signs array
+const ZODIAC_SIGNS = [
+  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+];
+
+// Extremely basic approximation for Sun position for MVP purposes
+exports.getTransitData = (dateStr) => {
+  return new Promise((resolve) => {
+    try {
+      const date = new Date(dateStr);
+      // Rough approximation: Sun enters Aries ~March 21
+      // Each day is ~1 degree
+      const startOfYear = new Date(date.getFullYear(), 0, 0);
+      const diff = date - startOfYear;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const dayOfYear = Math.floor(diff / oneDay);
+      
+      // March 21 is ~day 80
+      let sunDegree = (dayOfYear - 80) % 365;
+      if (sunDegree < 0) sunDegree += 365;
+      
+      const zodiacIndex = Math.floor((sunDegree / 365) * 12);
+      const degreeInSign = Math.floor(((sunDegree / 365) * 12 - zodiacIndex) * 30);
+      
+      resolve(`Sun in ${degreeInSign}° ${ZODIAC_SIGNS[zodiacIndex]}, Moon phase active`);
+    } catch (err) {
+      resolve('Transits unknown');
+    }
+  });
+};
+
 exports.getDailyDashboard = async (userId, targetDate) => {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('User not found');
